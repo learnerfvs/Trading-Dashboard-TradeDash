@@ -1,6 +1,8 @@
 # Trading-Dashboard-TradeDash
 A powerful browser extension for traders to analyze their trading performance with beautiful visualizations, forecasting tools, and Google Sheets integration.
 
+Open Sourced Extension. Github link: https://github.com/learnerfvs/Trading-Dashboard-TradeDash
+
 ![Dark Mode](https://github.com/user-attachments/assets/1146d408-270e-4609-be82-5469f968c382)
 
 
