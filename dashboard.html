@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Dashboard - Version 1.3</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header>
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>📊 Trading Dashboard</h1>
+                    <p class="version">Version 1.3</p>
+                </div>
+                <div class="header-right">
+                    <!-- Theme Controls -->
+                    <div class="theme-controls">
+                        <button id="themeToggle" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+                        <div class="accent-selector">
+                            <button class="accent-btn active" data-accent="blue" title="Blue Theme">🔵</button>
+                            <button class="accent-btn" data-accent="green" title="Green Theme">🟢</button>
+                            <button class="accent-btn" data-accent="yellow" title="Yellow Theme">🟡</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Strategy Management Bar -->
+        <div class="strategy-bar" id="strategyBar" style="display: none;">
+            <div class="strategy-tabs" id="strategyTabs">
+                <!-- Strategy tabs will be added dynamically -->
+            </div>
+            <div class="strategy-actions">
+                <button id="addStrategyBtn" class="action-btn add-btn">+ Add Strategy</button>
+                <button id="compareStrategiesBtn" class="action-btn compare-btn">📊 Compare Strategies</button>
+                <button id="exportStrategiesBtn" class="action-btn export-btn">💾 Export</button>
+                <button id="importStrategiesBtn" class="action-btn import-btn">📁 Import</button>
+                <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            </div>
+        </div>
+
+        <!-- File Info and Upload Section -->
+<div class="file-info-section">
+    <div class="file-metadata">
+        <div class="metadata-item">
+            <span class="metadata-label">Strategy Name:</span>
+            <span id="strategyName" class="metadata-value">No strategy loaded</span>
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">File Name:</span>
+            <span id="fileName" class="metadata-value">--</span>
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Last Updated:</span>
+            <span id="lastUpdated" class="metadata-value">--</span>
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Total Trades:</span>
+            <span id="totalTradesCount" class="metadata-value">0</span>
+        </div>
+        
+                        <div class="metadata-item" id="sheetSourceInfo" style="display: none;">
+                    <span class="metadata-label">Source:</span>
+                    <span id="sheetSource" class="metadata-value metadata-badge">📊 Google Sheets</span>
+                </div>
+
+    </div>
+    <div class="upload-controls">
+        <div class="capital-input-inline" id="capitalInputContainer">
+            <label for="capitalInput">Capital (INR):</label>
+            <input type="number" id="capitalInput" value="350000" min="1000">
+        </div>
+        <label for="fileInput" class="upload-btn" id="uploadBtnLabel">
+            📁 Upload File
+            <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+        </label>
+        <button id="importBtnInitial" class="upload-btn import-btn-initial" style="display: none;">
+            📁 Import Backup
+        </button>
+        <button id="connectSheetsBtn" class="upload-btn sheets-btn" style="display: none;">
+    📊 Connect Google Sheets
+</button>
+<button id="refreshSheetData" class="upload-btn refresh-btn" style="display: none;">
+    🔄 Refresh Data
+</button>
+
+    </div>
+</div>
+
+
+        <!-- Column Mapping Modal -->
+        <div class="modal-overlay" id="mappingModal" style="display: none;">
+            <div class="modal-content">
+                <h2>📋 Map Your Data Columns</h2>
+                <p class="modal-subtitle">Select which columns contain your trading data</p>
+                
+                <div class="mapping-section">
+                    <h3>Required Fields</h3>
+                    <div class="mapping-row">
+                        <label>Date:</label>
+                        <select id="dateColumn" class="mapping-select">
+                            <option value="">-- Select Column --</option>
+                        </select>
+                    </div>
+                    <div class="mapping-row">
+                        <label>Profit/Loss:</label>
+                        <select id="plColumn" class="mapping-select">
+                            <option value="">-- Select Column --</option>
+                        </select>
+                    </div>
+                    
+                    <h3>Optional Fields</h3>
+                    <div class="mapping-row">
+                        <label>Charges:</label>
+                        <select id="chargesColumn" class="mapping-select">
+                            <option value="">-- Select Column (Default: 0) --</option>
+                        </select>
+                    </div>
+                    <div class="mapping-row">
+                        <label>Lots/Delta Size:</label>
+                        <select id="lotsColumn" class="mapping-select">
+                            <option value="">-- Select Column (Optional) --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="toggle-additional">
+                        <label>
+                            <input type="checkbox" id="toggleAdditional">
+                            Map Additional Fields
+                        </label>
+                    </div>
+                    
+                    <div id="additionalFields" style="display: none;">
+                        <h3>Additional Fields</h3>
+                        <div class="mapping-row">
+                            <label>Entry Type:</label>
+                            <select id="entryTypeColumn" class="mapping-select">
+                                <option value="">-- Select Column (Optional) --</option>
+                            </select>
+                        </div>
+                        <div class="mapping-row">
+                            <label>Exit Criteria:</label>
+                            <select id="exitCriteriaColumn" class="mapping-select">
+                                <option value="">-- Select Column (Optional) --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-error" id="mappingError" style="display: none;"></div>
+                
+                <div class="modal-actions">
+                    <button id="cancelMapping" class="modal-btn cancel-btn">Cancel</button>
+                    <button id="confirmMapping" class="modal-btn confirm-btn">Confirm Mapping</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Sheets Connection Modal -->
+        <div class="modal-overlay" id="sheetsModal" style="display: none;">
+            <div class="modal-content">
+                <h2>📊 Connect to Google Sheets</h2>
+                <p class="modal-subtitle">Connect your strategy to a Google Sheet for automatic data sync</p>
+                
+                <div class="sheets-connection-section">
+                    <div class="connection-step">
+                        <h3>Step 1: Authenticate</h3>
+                        <button id="authenticateGoogle" class="modal-btn confirm-btn">
+                            🔐 Sign in with Google
+                        </button>
+                        <p id="authStatus" class="auth-status" style="display: none;"></p>
+                    </div>
+                    
+                    <div class="connection-step" id="sheetConfigStep" style="display: none;">
+                        <h3>Step 2: Configure Sheet Connection</h3>
+                        
+                        <div class="mapping-row">
+                            <label>Spreadsheet ID:</label>
+                            <input type="text" id="spreadsheetId" class="sheets-input" 
+                                   placeholder="Found in sheet URL: /d/[ID]/edit">
+                        </div>
+                        
+                        <div class="mapping-row">
+                            <label>Sheet Name:</label>
+                            <input type="text" id="sheetName" class="sheets-input" 
+                                   placeholder="e.g., Strategy1">
+                        </div>
+                        
+                        <div class="mapping-row">
+                            <label>Cell Range:</label>
+                            <input type="text" id="cellRange" class="sheets-input" 
+                                   placeholder="e.g., A1:H500">
+                        </div>
+                        
+                        <div class="help-box">
+                            <strong>📝 How to find Spreadsheet ID:</strong><br>
+                            Open your Google Sheet. Look at the URL:<br>
+                            <code>https://docs.google.com/spreadsheets/d/<span style="color: #48bb78;">1A2B3C4D5E6F</span>/edit</code><br>
+                            Copy the highlighted part (between /d/ and /edit)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-error" id="sheetsError" style="display: none;"></div>
+                
+                <div class="modal-actions">
+                    <button id="cancelSheets" class="modal-btn cancel-btn">Cancel</button>
+                    <button id="testConnection" class="modal-btn" style="display: none;">Test Connection</button>
+                    <button id="confirmSheets" class="modal-btn confirm-btn" style="display: none;">Connect Sheet</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Compare Strategies Section (Collapsible) -->
+        <div class="compare-section" id="compareSection" style="display: none;">
+            <div class="compare-header">
+                <h2>📊 Strategy Comparison</h2>
+                <button id="closeCompare" class="close-compare-btn">❌ Close</button>
+            </div>
+    <div class="strategy-selection-wrapper">
+    <h3 class="strategy-section-title">Selected Strategies 🎯</h3>
+    <div class="strategy-checkboxes" id="strategyCheckboxes"></div>
+</div>    
+            <div class="compare-content">
+    
+<div class="compare-chart-section">
+
+    
+    <!-- Week Range Slider -->
+    <div class="week-range-controls" id="weekRangeControls" style="display: none;">
+        <div class="range-labels">
+    <span class="range-label">Week Range (<span id="weekCount">18</span> weeks):</span>
+    <span class="range-values" id="weekRangeDisplay">Week 1 - Week 50</span>
+    <button id="resetWeekRange" class="reset-range-btn">Reset to All</button>
+        </div>
+        <div class="slider-container">
+    <div class="slider-track-bg"></div>
+    <div class="slider-track-fill" id="sliderTrackFill"></div>
+    <input type="range" id="startWeekSlider" class="week-slider" min="1" max="100" value="1">
+    <input type="range" id="endWeekSlider" class="week-slider" min="1" max="100" value="50">
+</div>
+
+        <div class="slider-labels">
+            <span id="startWeekLabel">Start: Week 1</span>
+            <span id="endWeekLabel">End: Week 50</span>
+        </div>
+    </div>
+    
+    <div class="compare-chart-container">
+        <canvas id="compareChart"></canvas>
+    </div>
+</div>
+
+                
+                <!-- Right: Comparison Table -->
+                <div class="compare-table-section">
+                    <h3>Performance Metrics</h3>
+                    <div class="compare-table-wrapper">
+                        <table class="compare-table" id="compareTable">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <!-- Strategy columns will be added dynamically -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be added dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                        <!-- NEW: Dumbbell Chart Section (Left) -->
+        <div class="compare-dumbbell-section">
+            <h3>Best/Worst Period Analysis</h3>
+            <p class="section-subtitle">Range comparison for <span id="periodWeeksDisplay">18 weeks</span></p>
+            <div id="dumbbellChart"></div>
+        </div>
+
+        <!-- NEW: Detail Table Section (Right) -->
+        <div class="compare-detail-table-section">
+            <h3>Detailed Period Comparison</h3>
+            <div class="detail-table-wrapper">
+                <table class="compare-table" id="detailTable">
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>Beginning P&L</th>
+                            <th>Current P&L</th>
+                            <th>Worst Period</th>
+                            <th>Best Period</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTableBody">
+                        <!-- Rows will be added dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+            </div>
+        </div>
+
+        <!-- Forecasting Toggle Container -->
+        <div class="forecasting-toggle-container" id="forecastingToggleContainer" style="display: none;">
+            <button id="toggleForecasting" class="forecasting-toggle-btn">
+                📈 Enable Forecasting
+            </button>
+        </div>
+
+        <!-- Forecasting Section (Collapsible) -->
+        <div class="forecasting-section" id="forecastingSection" style="display: none;">
+            <div class="forecasting-header">
+                <div class="forecasting-title">
+                    <h2>📈 Performance Projections</h2>
+                    <p class="forecasting-subtitle" id="forecastingSubtitle">Based on Net P&L from historical trades</p>
+                </div>
+                <div class="forecasting-controls">
+                    <button id="toggleExtreme" class="extreme-btn">
+                        ⚡ Extreme Market Scenario
+                    </button>
+                    <button id="disableForecasting" class="disable-forecast-btn">
+                        ❌ Disable Forecasting
+                    </button>
+                </div>
+            </div>
+
+            <!-- Forecasting Content - Side by Side -->
+            <div class="forecasting-content">
+                <!-- Left: Projection Chart -->
+                <div class="projection-chart-section">
+                    <div class="forecast-view-controls">
+                        <button id="view1Yr" class="forecast-view-btn btn-active">1 Year</button>
+                        <button id="view2Yr" class="forecast-view-btn">2 Years</button>
+                        <button id="view4Yr" class="forecast-view-btn">4 Years</button>
+                    </div>
+                    <div class="projection-chart-container">
+                        <canvas id="projectionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Right: Projection Table -->
+                <div class="projection-table-section">
+                    <h3>Projected Returns</h3>
+                    <div class="projection-table-wrapper">
+                        <table class="projection-table">
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Trades</th>
+                                    <th class="best-case">Best (75th)</th>
+                                    <th class="base-case">Base (50th)</th>
+                                    <th class="worst-case">Worst (25th)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projectionTableBody">
+                                <!-- Rows will be added dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning and Disclaimer -->
+            <div class="forecasting-footer">
+                <p class="forecast-warning" id="forecastWarning" style="display: none;">
+                    ⚠️ Note: Limited sample size. Projections become less reliable with limited data.
+                </p>
+                <p class="forecast-disclaimer">
+                    ⚠️ Projections are statistical estimates based on historical performance and do not guarantee future results.
+                </p>
+            </div>
+        </div>
+
+      
+        <!-- Main Content - Chart and Heatmap Side by Side -->
+        <div class="main-content" id="mainContent" style="display: none;">
+
+        <!-- Overview Header -->
+        <div class="overview-header-compact" style="display: none;" id="overviewHeaderCompact">
+        <h2>📊 Performance Overview</h2>
+        <p class="section-subtitle">Currently viewing: <span id="selectedStrategy">No strategy selected</span></p>
+        </div>
+    
+        
+            <!-- Left Column - Chart Section -->
+            <div class="chart-section">
+              
+                <!-- Chart Info Bar -->
+                <div class="chart-info-bar">
+                    <div class="info-item">
+                        <span class="info-label">Time Period</span>
+                        <span id="timePeriod" class="info-value">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Total Trades</span>
+                        <span id="totalTradesInfo" class="info-value">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Avg Trades/Month</span>
+                        <span id="avgTradesMonth" class="info-value">0</span>
+                    </div>
+                </div>
+
+                <!-- Chart Controls (Left Side) and Chart -->
+                <div class="chart-with-controls">
+                    <div class="chart-controls-vertical">
+                        <div class="control-group-vertical">
+                            <button id="btnGross">Gross</button>
+                            <button id="btnNet" class="btn-active">Net</button>
+                        </div>
+                        <div class="control-group-vertical">
+                            <button id="btnINR" class="btn-active">INR</button>
+                            <button id="btnPercent">%</button>
+                        </div>
+                        <div class="control-group-vertical">
+                            <button id="btnAddInstrument" class="btn-instrument" title="Add market comparison data">
+                                <span class="instrument-icon">📊</span>
+                                <span class="instrument-text">Add Instrument</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-wrapper">
+                        <canvas id="chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Stats Below Chart -->
+                <div class="chart-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">P&L</span>
+                        <span id="statPL" class="stat-value-small">₹0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Profitability</span>
+                        <span id="statProfit" class="stat-value-small">0%</span>
+                        <span id="statWinLoss" class="stat-detail">[W - 0 / L - 0]</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Profit Factor</span>
+                        <span id="statPF" class="stat-value-small">0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Return/Trade</span>
+                        <span id="statAvgReturn" class="stat-value-small">₹0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Charges</span>
+                        <span id="statCharges" class="stat-value-small">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+
+               <!-- NEW: Mini Charts Section (Between chart and heatmap) -->
+        <div class="mini-charts-section" id="miniChartsSection" style="display: none;">
+            <div class="mini-chart-card">
+                <h4 class="mini-chart-title">📊 P&L Structure</h4>
+                <div id="miniWaterfallChart"></div>
+            </div>
+            <div class="mini-chart-card">
+                <h4 class="mini-chart-title">✅ Profit Distribution</h4>
+                <div id="miniProfitChart"></div>
+            </div>
+            <div class="mini-chart-card">
+                <h4 class="mini-chart-title">❌ Loss Distribution</h4>
+                <div id="miniLossChart"></div>
+            </div>
+        </div>
+
+            <!-- Right Column - Monthly Heatmap -->
+            <div class="heatmap-section">
+                <div class="heatmap-header">
+                    <h3>Monthly Returns</h3>
+                    <div class="year-selector" id="yearSelector">
+                        <!-- Year buttons will be dynamically added -->
+                    </div>
+                </div>
+                <div class="heatmap-grid" id="heatmapGrid">
+                    <!-- Heatmap cells will be dynamically added -->
+                </div>
+                <div class="heatmap-footer">
+                    <button id="clearMonthFilter" class="clear-filter-btn" style="display: none;">Clear Selection</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lower Section - Other Statistics -->
+        <div class="lower-section" id="lowerSection" style="display: none;">
+            <div class="stat-card-large">
+                <h3>Max Drawdown</h3>
+                <p id="statMaxDD" class="stat-value-large">₹0 (0%)</p>
+            </div>
+            <div class="stat-card-large stat-card-winning">
+                <h3>Max Winning Streak</h3>
+                <p id="statMaxWinStreak" class="stat-value-large stat-winning">₹0 (0 trades)</p>
+            </div>
+            <div class="stat-card-large stat-card-losing">
+                <h3>Max Losing Streak</h3>
+                <p id="statMaxLossStreak" class="stat-value-large stat-losing">₹0 (0 trades)</p>
+            </div>
+        </div>
+
+
+        <!-- Trade Distribution - Radial Charts -->
+        <div class="radial-charts-section" id="radialChartsSection" style="display: none;">
+            <h2>📊 Trade Distribution</h2>
+            <p class="section-subtitle">Frequency of trades across value ranges</p>
+            
+            <div class="radial-charts-container">
+                <div class="radial-chart-card">
+                    <h3>Profit Trades</h3>
+                    <div id="profitRadialChart"></div>
+                </div>
+                
+                <div class="radial-chart-card">
+                    <h3>Loss Trades</h3>
+                    <div id="lossRadialChart"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Waterfall Chart - P&L Structure -->
+        <div class="waterfall-section" id="waterfallSection" style="display: none;">
+            <h2>💰 Profit Structure</h2>
+            <p class="section-subtitle">Breakdown of gross profit, losses, and net result</p>
+            <div id="waterfallChart"></div>
+        </div>
+
+
+
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage" style="display: none;"></div>
+    </div>
+
+    <!-- Load Libraries -->
+    <script src="xlsx.full.min.js"></script>
+    <script src="chart.js"></script>
+    <script src="apexcharts.min.js"></script>
+    <script src="dashboard.js"></script>
+<!-- Add Strategy Choice Modal -->
+<div id="addStrategyModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <h2>📊 Add New Strategy</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose how you want to add your trading data:</p>
+        
+        <div class="strategy-choice-buttons">
+            <button id="chooseFileUpload" class="strategy-choice-btn">
+                <span class="choice-icon">📁</span>
+                <span class="choice-title">Upload File</span>
+                <span class="choice-desc">Upload Excel or CSV file from your computer</span>
+            </button>
+            
+            <button id="chooseGoogleSheets" class="strategy-choice-btn">
+                <span class="choice-icon">📊</span>
+                <span class="choice-title">Connect Google Sheets</span>
+                <span class="choice-desc">Link to a Google Sheet for automatic updates</span>
+            </button>
+        </div>
+        
+        <button id="cancelAddStrategy" class="cancel-btn" style="margin-top: 20px;">Cancel</button>
+    </div>
+</div>
+<!-- Instrument Data Modal -->
+<div id="instrumentModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+        <h2>📊 Market Instrument Data</h2>
+        <p class="modal-subtitle">Compare your strategy performance with market benchmark</p>
+        
+        <!-- Selection Section -->
+        <div id="instrumentSelectionSection">
+            <h3>Select Existing Instrument</h3>
+            <select id="instrumentSelector" class="mapping-select">
+                <option value="">-- Select an instrument --</option>
+            </select>
+            
+            <div style="text-align: center; margin: 20px 0; color: var(--text-secondary);">
+                <strong>OR</strong>
+            </div>
+            
+            <h3>Upload New Instrument</h3>
+            <div class="mapping-row">
+                <label>Instrument Name</label>
+                <input type="text" id="instrumentName" class="sheets-input" placeholder="e.g., NIFTY 50, BANKNIFTY">
+            </div>
+            
+            <div class="help-box" style="margin-bottom: 15px;">
+                <strong>📋 Data Format Required:</strong><br>
+                • Excel/CSV file with 2 columns<br>
+                • Row 1: Headers - <code>Date</code> and <code>Close</code><br>
+                • Row 2 onwards: Data values<br>
+                • Date format: DD-MM-YYYY or DD/MM/YYYY
+            </div>
+            
+            <label for="instrumentFileInput" class="upload-btn" style="display: inline-block; margin-bottom: 20px;">
+                📁 Choose File
+                <input type="file" id="instrumentFileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+            </label>
+            <span id="instrumentFileName" style="margin-left: 10px; color: var(--text-secondary);"></span>
+        </div>
+        
+        <div class="modal-error" id="instrumentError" style="display: none;"></div>
+        
+        <div class="modal-actions">
+            <button id="cancelInstrument" class="modal-btn cancel-btn">Cancel</button>
+            <button id="confirmInstrument" class="modal-btn confirm-btn">Apply</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

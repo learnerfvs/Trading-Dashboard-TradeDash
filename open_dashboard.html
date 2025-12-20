@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Open Dashboard</title>
+</head>
+<body>
+  <script>
+    (function() {
+      try {
+        const runtime = (typeof chrome !== 'undefined' && chrome.runtime) ? chrome.runtime : (typeof browser !== 'undefined' && browser.runtime) ? browser.runtime : null;
+        const url = runtime ? runtime.getURL('dashboard.html') : 'dashboard.html';
+        window.open(url, '_blank');
+      } catch (e) {
+        console.error('Failed to open dashboard via popup', e);
+      }
+      // Close popup window quickly
+      setTimeout(() => { window.close(); }, 250);
+    })();
+  </script>
+</body>
+</html>
