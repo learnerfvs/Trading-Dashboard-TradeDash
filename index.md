@@ -97,7 +97,7 @@ View our [Privacy Policy](https://gist.github.com/learnerfvs/2925b4e84ce2c1db15c
 - 📧 Email: [learnerfvs@gmail.com]
 - 🐛 Bug Reports: [GitHub Issues](https://github.com/learnerfvs/Trading-Dashboard-TradeDash/issues)
 - 💬 Feature Requests: [GitHub Discussions](https://github.com/learnerfvs/Trading-Dashboard-TradeDash/discussions)
-
+- 🌐 Privacy Policy: [Clicke here for privacy worries](https://learnerfvs.github.io/Trading-Dashboard-TradeDash/privacypolicy.html)
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
